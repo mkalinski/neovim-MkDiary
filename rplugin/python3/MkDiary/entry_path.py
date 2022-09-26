@@ -53,11 +53,15 @@ class EntryPathParser:
 
     @staticmethod
     def _get_month_dir_path(date: datetime.date) -> Path:
-        return Path(str(date.year), str(date.month))
+        return Path(str(date.year), str(date.month).rjust(2, "0"))
 
     @staticmethod
     def _get_entry_path(date: datetime.date) -> Path:
-        return Path(str(date.year), str(date.month), str(date.day))
+        return Path(
+            str(date.year),
+            str(date.month).rjust(2, "0"),
+            str(date.day).rjust(2, "0"),
+        )
 
     @staticmethod
     def _make_date(year: int, month: int = 1, day: int = 1) -> datetime.date:
