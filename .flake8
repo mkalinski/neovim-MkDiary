@@ -1,0 +1,5 @@
+[flake8]
+; These properties are taken care of by black
+; E501: line too long
+; E203: whitespace before ':'
+extend-ignore = E501,E203
