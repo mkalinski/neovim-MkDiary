@@ -6,8 +6,12 @@ Inspired by diary function of [vimwiki](https://github.com/vimwiki/vimwiki).
 
 This is a rewrite of my [Vim plugin](github.com/mkalinski/vim-mkdiary) as
 a Python plugin, since Vimscript time functions are insufficient for providing
-some more convenient arguments. Because the plugin now uses Neovim's remote
-plugin interface, it's now a Neovim-only plugin.
+some more convenient arguments. ~~Because the plugin now uses Neovim's remote
+plugin interface, it's now a Neovim-only plugin.~~ It no longer uses Neovim's
+remote plugin interface, in anticipation of it being completely overhauled;
+it now uses the legacy interface,
+with as little functionality in Python as possible,
+so it should actually work on Vim now too.
 
 ## What the plugin does
 
@@ -48,35 +52,18 @@ Both `MkDiary` commands accept the same arguments. There are several accepted
 forms, each of them denoting a certain entry or directory date.
 
 - **No arguments**: the entry for current date.
-- `(.|(+|-)<years>|<year>) [.|(+|-)<months>|<month>] [.|(+|-)<days>|<day>]`:
+- `(.|<year>) [.|<month>] [.|<day>]`:
   the main form; the three arguments denote year, month, and day of the entry.
   * `.` means the current year, month, or day.
-  * Number preceded by `+` or `-` means the current year, month, or day
-    modified by plus/minus given number of units.
   * Natural number to mean that year, month, or day.
-  * Modified values don't "roll over", if they sum up to a number too high or
-    too low to represent a valid year, month, or day number, that's an error.
   * If days are omitted, the directory for month will be opened.
   * If days and months are omitted, the directory for years will be opened.
-- `(+|-)<days>d`: the entry for current day, modified by plus/minus given
-  number of days. The `+` or `-` sign, or `d` at the end, are mandatory for
-  this form, and no spaces are allowed, to differentiate this form from the
-  main one. This forms can cause months or years to "roll over".
-- As shortcuts for `. .` and `. . .`, `..` means "current month" and `...`
-  means "current day" (essentially the same as calling without arguments).
+- `(+|-)<days>`: the entry for current day, modified by plus/minus given
+  number of days. The `+` or `-` sign is mandatory for
+  this form.
 
 ### Options
 
-- `MkDiary_edit_command`: The command to open and entry in place (like `edit`).
-  The command will be passed the absolute path to the entry, which can be an
-  existing directory or an existing or not file. It should also handle `!` like
-  `edit`.
-  * Default: `'edit'`
-- `MkDiary_split_command`: The command to open an entry in a split window (like
-  `split`). The command will be passed the absolute path to the entry, which
-  can be an existing directory or an existing or not file. It should also
-  handle `<mods>` like `split`.
-  * Default: `'split'`
 - `MkDiary_base_dir`: Base directory in which entries will be created. It will
   be crated when a `MkDiary` command is called if it does not exist.
   * Default: `$HOME .. '/Diary'`

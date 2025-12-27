@@ -1,8 +1,0 @@
-black
-flake8
-isort
-mypy
-python-lsp-server
-python-lsp-black
-pyls-isort
-pylsp-mypy
