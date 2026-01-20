@@ -58,32 +58,33 @@ endfunction
 
 function s:open_entry(open_command, elements) abort
     let l:base_dir = trim(s:get_base_dir(), '/', 2) .. '/'
+    let l:fmt_elts = mapnew(a:elements, {_, val -> printf('%02u', val)})
 
-    if !empty(a:elements[0]) && !empty(a:elements[1]) && !empty(a:elements[2])
-        let l:entry_dir = l:base_dir .. join(a:elements[0:1], '/')
+    if !empty(l:fmt_elts[0]) && !empty(l:fmt_elts[1]) && !empty(l:fmt_elts[2])
+        let l:entry_dir = l:base_dir .. join(l:fmt_elts[0:1], '/')
         call mkdir(l:entry_dir, 'p')
-        let l:entry = l:entry_dir .. '/' .. a:elements[2] .. s:get_file_ext()
+        let l:entry = l:entry_dir .. '/' .. l:fmt_elts[2] .. s:get_file_ext()
         exe a:open_command fnameescape(l:entry)
         call chdir(l:base_dir)
         return
     endif
 
-    if !empty(a:elements[0]) && !empty(a:elements[1])
-        let l:entry_dir = l:base_dir .. join(a:elements[0:1], '/')
+    if !empty(l:fmt_elts[0]) && !empty(l:fmt_elts[1])
+        let l:entry_dir = l:base_dir .. join(l:fmt_elts[0:1], '/')
         call mkdir(l:entry_dir, 'p')
         exe a:open_command fnameescape(l:entry_dir)
         call chdir(l:base_dir)
         return
     endif
 
-    if !empty(a:elements[0])
-        call mkdir(a:elements[0], 'p')
-        exe a:open_command fnameescape(a:elements[0])
+    if !empty(l:fmt_elts[0])
+        call mkdir(l:fmt_elts[0], 'p')
+        exe a:open_command fnameescape(l:fmt_elts[0])
         call chdir(l:base_dir)
         return
     endif
 
-    throw 'mkdiary: Invalid path elements list: ' .. a:elements
+    throw 'mkdiary: Invalid path elements list: ' .. l:fmt_elts
 endfunction
 
 function s:open_absolute_entry(open_command, year, month, day) abort
