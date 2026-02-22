@@ -41,50 +41,55 @@ del _mkdiary_setup
 EOF
 
 function s:get_base_dir() abort
-    if exists('g:MkDiary_base_dir')
-        return g:MkDiary_base_dir
-    endif
-
-    return $HOME .. '/Diary'
+    return exists('g:MkDiary_base_dir')
+    \   ? g:MkDiary_base_dir
+    \   : $HOME .. '/Diary'
 endfunction
 
 function s:get_file_ext() abort
-    if exists('g:MkDiary_file_ext')
-        return g:MkDiary_file_ext
-    endif
-
-    return '.txt'
+    return exists('g:MkDiary_file_ext') ? g:MkDiary_file_ext : '.txt'
 endfunction
 
 function s:open_entry(open_command, elements) abort
     let l:base_dir = trim(s:get_base_dir(), '/', 2) .. '/'
-    let l:fmt_elts = mapnew(a:elements, {_, val -> printf('%02u', val)})
+    let l:fmt_elts = s:prepare_entry_elements(a:elements)
 
-    if !empty(l:fmt_elts[0]) && !empty(l:fmt_elts[1]) && !empty(l:fmt_elts[2])
+    if len(l:fmt_elts) >= 1
+        " If there is at least one valid entry element,
+        " we can create the year or month directory.
         let l:entry_dir = l:base_dir .. join(l:fmt_elts[0:1], '/')
         call mkdir(l:entry_dir, 'p')
-        let l:entry = l:entry_dir .. '/' .. l:fmt_elts[2] .. s:get_file_ext()
+
+        " If the third and final entry element is present,
+        " open the full entry filename, else open the entry directory.
+        let l:entry = len(l:fmt_elts) >= 3
+        \   ? l:entry_dir .. '/' .. l:fmt_elts[2] .. s:get_file_ext()
+        \   : l:entry_dir
+
         exe a:open_command fnameescape(l:entry)
         call chdir(l:base_dir)
-        return
+    else
+        throw 'mkdiary: Invalid path elements list: ' .. a:elements
     endif
+endfunction
 
-    if !empty(l:fmt_elts[0]) && !empty(l:fmt_elts[1])
-        let l:entry_dir = l:base_dir .. join(l:fmt_elts[0:1], '/')
-        call mkdir(l:entry_dir, 'p')
-        exe a:open_command fnameescape(l:entry_dir)
-        call chdir(l:base_dir)
-        return
-    endif
+function s:prepare_entry_elements(elements) abort
+    let l:result = []
 
-    if !empty(l:fmt_elts[0])
-        call mkdir(l:fmt_elts[0], 'p')
-        exe a:open_command fnameescape(l:fmt_elts[0])
-        call chdir(l:base_dir)
-        return
-    endif
+    for l:elt in a:elements
+        let l:fmt_elt = printf('%02u', l:elt)
 
-    throw 'mkdiary: Invalid path elements list: ' .. l:fmt_elts
+        " This will be formatted into 00 on any sort of invalid value.
+        " Stop formatting at the first invalid value,
+        " to only pass valid combinations.
+        if l:fmt_elt ==# '00'
+            break
+        endif
+
+        call add(l:result, l:fmt_elt)
+    endfor
+
+    return l:result
 endfunction
 
 function s:open_absolute_entry(open_command, year, month, day) abort
