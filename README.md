@@ -5,13 +5,7 @@ Very simple plugin for editing diary (or similar) entries, identified by dates.
 Inspired by diary function of [vimwiki](https://github.com/vimwiki/vimwiki).
 
 This is a rewrite of my [Vim plugin](github.com/mkalinski/vim-mkdiary) as
-a Python plugin, since Vimscript time functions are insufficient for providing
-some more convenient arguments. ~~Because the plugin now uses Neovim's remote
-plugin interface, it's now a Neovim-only plugin.~~ It no longer uses Neovim's
-remote plugin interface, in anticipation of it being completely overhauled;
-it now uses the legacy interface,
-with as little functionality in Python as possible,
-so it should actually work on Vim now too.
+a Lua plugin, for convenience.
 
 ## What the plugin does
 
@@ -33,8 +27,25 @@ organized by dates:
 ...
 ```
 
-Year and month directories are automatically created when they're accessed
-with the `MkDiary` commands.
+The base, year, and month directories are automatically created
+when they're first accessed with the `MkDiary` commands.
+
+## Setup
+
+The `setup()` function needs to be called to setup the plugin's commands.
+It optionally takes a table with the following options:
+
+- `base_dir`: The base directory where diary entries are put into.
+- `file_ext`: File extension for diary entry files.
+
+The following example show the default values for the options:
+
+```lua
+require'mkdiary'.setup{
+    base_dir = vim.fs.normalize'~/Diary',
+    file_ext = '.txt'
+}
+```
 
 ## Usage
 
@@ -42,9 +53,9 @@ with the `MkDiary` commands.
 
 - `MkDiary[!] <args>`: Edits a diary entry, denoted by `<args>`, in
   the current window; like `edit`, also accepting `!` in the same way.
-- `<mods> MkDiarySplit[!] <args>`: Edits a diary entry, denoted by `<args>`, in
-  a split window; like `split`, also accepting `<mods>` (`vertical`, etc.) in
-  the same way.
+- `<mods> MkDiarySplit[!] <args>`: Edits a diary entry, denoted by `<args>`,
+  in a split window; like `split`, also accepting `<mods>` (`vertical`, etc.)
+  in the same way.
 
 #### Args
 
@@ -61,12 +72,3 @@ forms, each of them denoting a certain entry or directory date.
 - `(+|-)<days>`: the entry for current day, modified by plus/minus given
   number of days. The `+` or `-` sign is mandatory for
   this form.
-
-### Options
-
-- `MkDiary_base_dir`: Base directory in which entries will be created. It will
-  be crated when a `MkDiary` command is called if it does not exist.
-  * Default: `$HOME .. '/Diary'`
-- `MkDiary_file_ext`: Extension that is appended to entry file names. Must
-  start with a dot. Empty string will disable extension appending.
-  * Default: `'.txt'`
